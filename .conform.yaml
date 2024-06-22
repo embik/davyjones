@@ -1,0 +1,27 @@
+policies:
+  - type: commit
+    spec:
+      header:
+        length: 89
+        imperative: true
+        case: lower
+        invalidLastCharacters: .
+      dco: true
+      spellcheck:
+        locale: US
+      conventional:
+        types:
+          # build system, releases
+          - "build"
+          # changes with no functional effect (e.g. updating dependencies)
+          - "chore"
+          # Documentation
+          - "docs"
+          # Unit and integration tests
+          - "test"
+        scopes:
+          # everything related to cargo configuration and dependencies
+          - "cargo"
+          # GitHub Actions
+          - "ci"
+        descriptionLength: 72
