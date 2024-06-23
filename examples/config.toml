@@ -1,0 +1,7 @@
+[topic]
+default = "prometheusalerts"
+
+[nfty]
+server = "ntfy.example.com"
+username = "user"
+password = "password"

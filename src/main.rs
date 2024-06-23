@@ -1,17 +1,47 @@
-use std::env;
+use std::path::Path;
+
+use actix_web::{web::Data, App, HttpServer};
+use anyhow::Result;
 
 mod alertmanager;
+mod cmd;
+mod config;
+mod routes;
 
-fn main() {
-    println!("Hello, world!");
+#[actix_web::main]
+async fn main() -> Result<()> {
+    let matches = cmd::cli().get_matches();
+    setup_logger(matches.get_flag("verbose"))?;
 
-    let ntfy_user = match env::var("NTFY_USER") {
-        Ok(user) => user,
-        Err(err) => panic!("{}", err),
+    let config_path = match matches.get_one::<std::path::PathBuf>("config") {
+        Some(path) => path.clone(),
+        None => Path::new(config::DEFAULT_CONFIG_FILE).to_path_buf(),
+    };
+    log::debug!("using {} as configuration file", config_path.display());
+    let conf = config::load(&config_path)?;
+    log::info!("loaded config from {}", config_path.display());
+
+    // start actix http server
+    HttpServer::new(move || {
+        App::new()
+            .app_data(Data::new(conf.clone()))
+            .service(routes::v1::service())
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await?;
+
+    Ok(())
+}
+
+fn setup_logger(verbose: bool) -> Result<()> {
+    let filter_level = match verbose {
+        true => log::LevelFilter::Debug,
+        false => log::LevelFilter::Info,
     };
 
-    let ntfy_password = match env::var("NTFY_PASSWORD") {
-        Ok(user) => user,
-        Err(err) => panic!("{}", err),
-    };
+    Ok(env_logger::Builder::new()
+        .filter_level(filter_level)
+        .format_target(false)
+        .try_init()?)
 }
