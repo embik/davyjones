@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use serde::Deserialize;
 use time::OffsetDateTime;
 
-// sourced from https://prometheus.io/docs/alerting/latest/configuration/#webhook_config.
 #[derive(Deserialize, Debug)]
 pub enum Status {
     #[serde(rename(deserialize = "resolved"))]
@@ -12,6 +11,7 @@ pub enum Status {
     Firing,
 }
 
+// based on https://prometheus.io/docs/alerting/latest/configuration/#webhook_config.
 #[derive(Deserialize, Debug)]
 pub struct Payload {
     pub version: String,
@@ -53,7 +53,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_deserialize() {
+    fn test_example_deserialize() {
         // sourced from https://gist.github.com/mobeigi/5a96f326bc06c7d6f283ecb7cb083f2b.
         let data = r#"
         {
