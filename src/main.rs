@@ -25,9 +25,15 @@ async fn main() -> Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(conf.clone()))
-            .service(routes::v1::service())
+            .service(routes::v1::scope())
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((
+        matches
+            .get_one::<String>("host")
+            .unwrap_or(&("localhost".to_string()))
+            .clone(),
+        matches.get_one::<u16>("port").unwrap_or(&8080).clone(),
+    ))?
     .run()
     .await?;
 

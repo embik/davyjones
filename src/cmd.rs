@@ -20,4 +20,18 @@ pub fn cli() -> Command {
                 .value_parser(value_parser!(PathBuf))
                 .help("Configuration file to start davyjones with"),
         )
+        .arg(
+            Arg::new("port")
+                .long("port")
+                .short('p')
+                .value_parser(value_parser!(u16))
+                .default_value("8080")
+                .help("Port to listen on when starting webhook server"),
+        )
+        .arg(
+            Arg::new("host")
+                .long("host")
+                .default_value("localhost")
+                .help("Host to listen on when starting webhook server"),
+        )
 }

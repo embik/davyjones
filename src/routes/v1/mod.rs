@@ -2,7 +2,7 @@ use crate::alertmanager::Payload;
 use crate::config::Config;
 use actix_web::{web, Responder};
 
-pub fn service() -> actix_web::Scope {
+pub fn scope() -> actix_web::Scope {
     web::scope("/v1").route("/webhooks/alerts", web::post().to(webhook_alerts))
 }
 
