@@ -6,6 +6,7 @@ use anyhow::Result;
 mod alertmanager;
 mod cmd;
 mod config;
+mod ntfy;
 mod routes;
 
 #[actix_web::main]
