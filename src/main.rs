@@ -3,10 +3,11 @@ use std::path::Path;
 use actix_web::{web::Data, App, HttpServer};
 use anyhow::Result;
 
-mod alertmanager;
+pub mod alertmanager;
+pub mod ntfy;
+
 mod cmd;
 mod config;
-mod ntfy;
 mod routes;
 
 #[actix_web::main]

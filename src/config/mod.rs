@@ -11,6 +11,7 @@ mod error;
 pub struct Config {
     pub nfty: Ntfy,
     pub topic: Topic,
+    pub alertmanager: Alertmanager,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -22,6 +23,11 @@ pub struct Ntfy {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Topic {
+    pub default: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct Alertmanager {
     pub default: String,
 }
 

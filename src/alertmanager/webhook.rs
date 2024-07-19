@@ -54,48 +54,8 @@ mod tests {
 
     #[test]
     fn test_example_deserialize() {
-        // sourced from https://gist.github.com/mobeigi/5a96f326bc06c7d6f283ecb7cb083f2b.
-        let data = r#"
-        {
-          "receiver": "webhook",
-          "status": "firing",
-          "alerts": [
-            {
-              "status": "firing",
-              "labels": {
-                "alertname": "Test",
-                "dc": "eu-west-1",
-                "instance": "localhost:9090",
-                "job": "prometheus24"
-              },
-              "annotations": {
-                "description": "some description"
-              },
-              "startsAt": "2018-08-03T09:52:26.739266876+02:00",
-              "endsAt": "0001-01-01T00:00:00Z",
-              "generatorURL": "http://example.com:9090/graph?g0.expr=go_memstats_alloc_bytes+%3E+0\u0026g0.tab=1"
-            }
-          ],
-          "groupLabels": {
-            "alertname": "Test",
-            "job": "prometheus24"
-          },
-          "commonLabels": {
-            "alertname": "Test",
-            "dc": "eu-west-1",
-            "instance": "localhost:9090",
-            "job": "prometheus24"
-          },
-          "commonAnnotations": {
-            "description": "some description"
-          },
-          "externalURL": "http://example.com:9093",
-          "version": "4",
-          "groupKey": "{}:{alertname=\"Test\", job=\"prometheus24\"}"
-        }
-            "#;
-
-        let payload = serde_json::from_str::<Payload>(data);
+        // payload.json sourced from https://gist.github.com/mobeigi/5a96f326bc06c7d6f283ecb7cb083f2b.
+        let payload = serde_json::from_str::<Payload>(include_str!("test/payload.json"));
         if let Err(err) = payload {
             panic!("unexpected error: {}", err)
         }
