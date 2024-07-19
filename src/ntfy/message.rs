@@ -1,8 +1,8 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 // Source: https://docs.ntfy.sh/publish/#publish-as-json
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Message {
     // Target topic name
     pub topic: String,
