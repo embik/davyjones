@@ -1,38 +1,47 @@
 use std::collections::HashMap;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum Status {
-    #[serde(rename(deserialize = "resolved"))]
+    #[serde(rename = "resolved")]
     Resolved,
-    #[serde(rename(deserialize = "firing"))]
+    #[serde(rename = "firing")]
     Firing,
 }
 
 // based on https://prometheus.io/docs/alerting/latest/configuration/#webhook_config.
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Payload {
     pub version: String,
-    #[serde(rename(deserialize = "groupKey"))]
+    #[serde(rename = "groupKey")]
     pub group_key: String,
-    #[serde(rename(deserialize = "truncatedAlerts"))]
+    #[serde(rename = "truncatedAlerts")]
     pub truncated_alerts: Option<u8>,
     pub status: Status,
     pub receiver: String,
-    #[serde(rename(deserialize = "externalURL"))]
+    #[serde(rename = "externalURL")]
     pub external_url: String,
-    #[serde(rename(deserialize = "groupLabels"))]
+    #[serde(rename = "groupLabels")]
     pub group_labels: Option<HashMap<String, String>>,
-    #[serde(rename(deserialize = "commonLabels"))]
+    #[serde(rename = "commonLabels")]
     pub common_labels: Option<HashMap<String, String>>,
-    #[serde(rename(deserialize = "commonAnnotations"))]
+    #[serde(rename = "commonAnnotations")]
     pub common_annotations: Option<HashMap<String, String>>,
     pub alerts: Vec<Alert>,
 }
 
-#[derive(Deserialize, Debug)]
+impl Payload {
+    pub fn get_common_label(&self, key: &str) -> Option<&String> {
+        match &self.common_labels {
+            Some(map) => map.get(key),
+            None => None,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Alert {
     pub status: Status,
     pub labels: Option<HashMap<String, String>>,
