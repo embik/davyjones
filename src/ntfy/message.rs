@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::{alertmanager, config};
+
 // Source: https://docs.ntfy.sh/publish/#publish-as-json
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -35,9 +37,9 @@ pub struct Message {
 }
 
 impl Message {
-    pub fn new(topic: String) -> Message {
+    pub fn new(topic: &str) -> Message {
         Message {
-            topic,
+            topic: topic.to_string(),
             message: None,
             title: None,
             tags: None,
@@ -51,6 +53,27 @@ impl Message {
             email: None,
             call: None,
         }
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn message(mut self, m: &str) -> Self {
+        self.message = Some(m.to_string());
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn title(mut self, t: &str) -> Self {
+        self.title = Some(t.to_string());
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn markdown(mut self, b: bool) -> Self {
+        self.markdown = Some(b);
+        self
     }
 }
 
