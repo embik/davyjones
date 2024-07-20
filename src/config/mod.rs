@@ -4,6 +4,10 @@ use std::path::Path;
 pub use error::Error;
 
 pub const DEFAULT_CONFIG_FILE: &str = "/etc/davyjones/config.toml";
+pub const DEFAULT_TITLE_TEMPLATE: &str = "{% if status == 'resolved' %}[Resolved] {% endif %}{{ commonLabels | get(key='severity', default='unknown') | upper}}: {{ commonLabels | get(key='alertname') }}";
+pub const DEFAULT_MESSAGE_TEMPLATE: &str = "
+
+";
 
 mod error;
 
@@ -11,7 +15,7 @@ mod error;
 pub struct Config {
     pub nfty: Ntfy,
     pub topic: Topic,
-    pub alertmanager: Alertmanager,
+    pub templates: Option<Templates>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -23,12 +27,16 @@ pub struct Ntfy {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Topic {
+    // The default topic used if no other configuration yielded a topic.
     pub default: String,
+    // The alert label to extract the target topic from.
+    pub label: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct Alertmanager {
-    pub default: String,
+pub struct Templates {
+    pub title: Option<String>,
+    pub message: Option<String>,
 }
 
 pub fn load(path: &Path) -> Result<Config, Error> {

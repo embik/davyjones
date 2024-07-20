@@ -1,7 +1,16 @@
 [topic]
 default = "prometheusalerts"
+label = "topic"
 
 [nfty]
 server = "ntfy.example.com"
 username = "user"
 password = "password"
+
+#[templates]
+#title = """
+#
+#"""
+#message = """
+#
+#"""

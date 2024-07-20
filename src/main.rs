@@ -1,4 +1,6 @@
+use ntfy::Message;
 use std::path::Path;
+use tera::Tera;
 
 use actix_web::{web::Data, App, HttpServer};
 use anyhow::Result;
@@ -9,6 +11,12 @@ pub mod ntfy;
 mod cmd;
 mod config;
 mod routes;
+
+#[derive(Debug, Clone)]
+struct ServerState {
+    config: config::Config,
+    tera: Tera,
+}
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -23,10 +31,32 @@ async fn main() -> Result<()> {
     let conf = config::load(&config_path)?;
     log::info!("loaded config from {}", config_path.display());
 
+    let title_template = match &conf.templates {
+        Some(tmpls) => match &tmpls.title {
+            Some(title_template) => &title_template,
+            None => config::DEFAULT_TITLE_TEMPLATE,
+        },
+        None => config::DEFAULT_TITLE_TEMPLATE,
+    };
+    let message_template = match &conf.templates {
+        Some(tmpls) => match &tmpls.message {
+            Some(message_template) => &message_template,
+            None => config::DEFAULT_MESSAGE_TEMPLATE,
+        },
+        None => config::DEFAULT_MESSAGE_TEMPLATE,
+    };
+
+    // set up tera templating engine
+    let mut tera = Tera::default();
+    tera.add_raw_template("title", &title_template)?;
+    tera.add_raw_template("message", &message_template)?;
+
+    let state = ServerState { config: conf, tera };
+
     // start actix http server
     HttpServer::new(move || {
         App::new()
-            .app_data(Data::new(conf.clone()))
+            .app_data(Data::new(state.clone()))
             .service(routes::v1::scope())
     })
     .bind((

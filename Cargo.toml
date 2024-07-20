@@ -14,4 +14,5 @@ log = "0.4"
 url = { version = "2.5.2", features = ["serde"] }
 env_logger = "0.10"
 actix-web = { version = "4.8.0" }
+tera = { version = "1.20.0" }
 
