@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{alertmanager, config};
-
 // Source: https://docs.ntfy.sh/publish/#publish-as-json
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
