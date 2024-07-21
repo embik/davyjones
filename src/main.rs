@@ -1,9 +1,8 @@
-use ntfy::Message;
-use std::path::Path;
+use actix_web::{middleware, web::Data, App, HttpServer};
+use anyhow::Result;
 use tera::Tera;
 
-use actix_web::{web::Data, App, HttpServer};
-use anyhow::Result;
+use std::path::Path;
 
 pub mod alertmanager;
 pub mod ntfy;
@@ -12,9 +11,9 @@ mod cmd;
 mod config;
 mod routes;
 
-#[derive(Debug, Clone)]
 struct ServerState {
     config: config::Config,
+    ntfy: ntfy::Ntfy,
     tera: Tera,
 }
 
@@ -46,17 +45,38 @@ async fn main() -> Result<()> {
         None => config::DEFAULT_MESSAGE_TEMPLATE,
     };
 
+    // install default rustls provider
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .unwrap();
+
     // set up tera templating engine
     let mut tera = Tera::default();
     tera.add_raw_template("title", &title_template)?;
     tera.add_raw_template("message", &message_template)?;
 
-    let state = ServerState { config: conf, tera };
+    let auth_username = conf.ntfy.username.clone().unwrap_or_default();
+    let auth_password = conf.ntfy.password.clone().unwrap_or_default();
 
     // start actix http server
     HttpServer::new(move || {
+        let auth = if (&conf.ntfy.username).is_some() && (&conf.ntfy.password).is_some() {
+            Some((&auth_username, &auth_password))
+        } else {
+            None
+        };
+
+        let ntfy = ntfy::Ntfy::new(&conf.ntfy.url, auth);
+
+        let state = ServerState {
+            config: conf.clone(),
+            tera: tera.clone(),
+            ntfy,
+        };
+
         App::new()
-            .app_data(Data::new(state.clone()))
+            .app_data(Data::new(state))
+            .wrap(middleware::Logger::default())
             .service(routes::v1::scope())
     })
     .bind((

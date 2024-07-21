@@ -14,5 +14,7 @@ log = "0.4"
 url = { version = "2.5.2", features = ["serde"] }
 env_logger = "0.10"
 actix-web = { version = "4.8.0" }
+awc = { version = "3.5.0", features = ["rustls-0_23"] }
 tera = { version = "1.20.0" }
-
+rustls = { version = "0.23" }
+webpki-roots = { version = "0.26" }
