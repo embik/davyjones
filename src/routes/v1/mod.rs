@@ -29,5 +29,7 @@ async fn webhook_alerts(
         .message(&state.tera.render("message", &context)?)
         .markdown(true);
 
-    Ok(HttpResponse::Ok().body(format!("{}", msg.title.unwrap_or("lol".to_string()))))
+    state.ntfy.send(&msg).await?;
+
+    Ok(HttpResponse::Ok().finish())
 }

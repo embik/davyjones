@@ -11,7 +11,7 @@ pub use message::Message;
 
 #[derive(Clone)]
 pub struct Ntfy {
-    server: String,
+    url: String,
     use_basic_auth: bool,
     username: String,
     password: String,
@@ -19,7 +19,7 @@ pub struct Ntfy {
 }
 
 impl Ntfy {
-    pub fn new(server: &str, basic_auth: Option<(&String, &String)>) -> Ntfy {
+    pub fn new(url: &str, basic_auth: Option<(&String, &String)>) -> Ntfy {
         let client_tls_config = Arc::new(rustls_config());
 
         let client = Client::builder()
@@ -34,7 +34,7 @@ impl Ntfy {
         };
 
         Ntfy {
-            server: server.to_string(),
+            url: url.to_string(),
             use_basic_auth,
             username,
             password,
@@ -45,7 +45,7 @@ impl Ntfy {
     pub async fn send(&self, msg: &Message) -> Result<(), Error> {
         let response = self
             .client
-            .post(&self.server)
+            .post(&self.url)
             .basic_auth(&self.username, &self.password)
             .send_json(msg)
             .await?;

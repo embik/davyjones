@@ -5,9 +5,7 @@ pub use error::Error;
 
 pub const DEFAULT_CONFIG_FILE: &str = "/etc/davyjones/config.toml";
 pub const DEFAULT_TITLE_TEMPLATE: &str = "{% if status == 'resolved' %}[Resolved] {% endif %}{{ commonLabels | get(key='severity', default='unknown') | upper}}: {{ commonLabels | get(key='alertname') }}";
-pub const DEFAULT_MESSAGE_TEMPLATE: &str = "
-
-";
+pub const DEFAULT_MESSAGE_TEMPLATE: &str = "";
 
 mod error;
 
