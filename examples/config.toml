@@ -2,8 +2,8 @@
 default = "prometheusalerts"
 label = "topic"
 
-[nfty]
-server = "ntfy.example.com"
+[ntfy]
+url = "https://ntfy.example.com/"
 username = "user"
 password = "password"
 

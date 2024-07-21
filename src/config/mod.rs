@@ -13,16 +13,16 @@ mod error;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Config {
-    pub nfty: Ntfy,
+    pub ntfy: Ntfy,
     pub topic: Topic,
     pub templates: Option<Templates>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Ntfy {
-    pub server: String,
-    pub username: String,
-    pub password: String,
+    pub url: String,
+    pub username: Option<String>,
+    pub password: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
