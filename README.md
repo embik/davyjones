@@ -5,7 +5,7 @@
 In addition to translating alerts `davyjones` also comes with the ability to configure dead man switches, which can be used to send notifications when a "watchdog" alert hasn't been triggered for a certain amount of time.
 
 > [!WARNING]
-> `davyjones` is in a very early and unstable change. Please don't expect a finished software product. If you want to use it I welcome issues and pull requests, but I cannot guarantee this project is secure or works correctly.
+> `davyjones` is in a very early state and subject to changes. Please don't expect a finished software product. If you want to use it I welcome issues and pull requests, but I cannot guarantee this project is secure or works correctly.
 
 ## Features
 
