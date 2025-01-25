@@ -11,7 +11,6 @@ pub const DEFAULT_MESSAGE_TEMPLATE: &str = "
 {%- for alert in alerts %}
 ## {{ alert.status }}: {{ alert.labels | get(key='alertname') }}
 {{ alert.annotations | get(key='description') }}
-**
 ---
 {% endfor %}
 ";
