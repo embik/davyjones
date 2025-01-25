@@ -73,6 +73,18 @@ impl Message {
         self.markdown = Some(b);
         self
     }
+
+    #[inline]
+    #[must_use]
+    pub fn tag(mut self, t: &str) -> Self {
+        if let Some(ref mut vector) = self.tags {
+            vector.push(t.to_string());
+        } else {
+            self.tags = Some(vec![t.to_string()]);
+        }
+
+        self
+    }
 }
 
 #[cfg(test)]

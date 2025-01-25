@@ -5,7 +5,16 @@ pub use error::Error;
 
 pub const DEFAULT_CONFIG_FILE: &str = "/etc/davyjones/config.toml";
 pub const DEFAULT_TITLE_TEMPLATE: &str = "{% if status == 'resolved' %}[Resolved] {% endif %}{{ commonLabels | get(key='severity', default='unknown') | upper}}: {{ commonLabels | get(key='alertname') }}";
-pub const DEFAULT_MESSAGE_TEMPLATE: &str = "";
+pub const DEFAULT_MESSAGE_TEMPLATE: &str = "
+{{ commonAnnotations | get(key='description', default='no description given') }}
+---
+{%- for alert in alerts %}
+## {{ alert.status }}: {{ alert.labels | get(key='alertname') }}
+{{ alert.annotations | get(key='description') }}
+**
+---
+{% endfor %}
+";
 
 mod error;
 

@@ -1,4 +1,4 @@
-use awc::{error::SendRequestError, http::header, Client, Connector};
+use awc::{http::header, Client, Connector};
 use rustls::{ClientConfig, RootCertStore};
 
 use std::sync::Arc;
@@ -43,12 +43,14 @@ impl Ntfy {
     }
 
     pub async fn send(&self, msg: &Message) -> Result<(), Error> {
-        let response = self
-            .client
-            .post(&self.url)
-            .basic_auth(&self.username, &self.password)
-            .send_json(msg)
-            .await?;
+        let mut request = self.client.post(&self.url);
+
+        if self.use_basic_auth {
+            request = request.basic_auth(&self.username, &self.password);
+        }
+
+        let response = request.send_json(msg).await?;
+
         if !response.status().is_success() {
             return Err(Error::ServerResponse(response.status()));
         }

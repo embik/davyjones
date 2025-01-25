@@ -10,4 +10,4 @@ TODO
 
 ## Configuration
 
-TODO
+`davyjones` is configured via a configuration file in TOML. An example can be found [here](./examples/config.toml).

@@ -1,4 +1,8 @@
-use crate::{alertmanager::Payload, ntfy::Message, ServerState};
+use crate::{
+    alertmanager::{self, Payload},
+    ntfy::Message,
+    ServerState,
+};
 use actix_web::{web, HttpResponse, Responder};
 
 mod error;
@@ -24,10 +28,19 @@ async fn webhook_alerts(
         None => &state.config.topic.default,
     };
 
-    let msg = Message::new(&topic)
+    let mut msg = Message::new(&topic)
         .title(&state.tera.render("title", &context)?)
         .message(&state.tera.render("message", &context)?)
         .markdown(true);
+
+    match payload.status {
+        alertmanager::Status::Firing => {
+            msg = msg.tag("warning");
+        }
+        alertmanager::Status::Resolved => {
+            msg = msg.tag("tada");
+        }
+    }
 
     state.ntfy.send(&msg).await?;
 
