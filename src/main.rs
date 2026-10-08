@@ -320,4 +320,72 @@ mod tests {
 
         assert_eq!(response.status(), 500);
     }
+
+    #[tokio::test]
+    async fn webhook_handles_alert_without_annotations() {
+        let (ntfy_url, received) = mock_ntfy().await;
+        let base = start_app(test_state(&ntfy_url)).await;
+
+        let mut payload: serde_json::Value =
+            serde_json::from_str(include_str!("alertmanager/test/payload.json")).unwrap();
+        payload["alerts"][0]
+            .as_object_mut()
+            .unwrap()
+            .remove("annotations");
+
+        let response = reqwest::Client::new()
+            .post(format!("{base}/v1/webhooks/alerts"))
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(payload.to_string())
+            .send()
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), 200);
+
+        let received = received.lock().unwrap();
+        assert_eq!(received.len(), 1);
+        let message = received[0].1["message"].as_str().unwrap();
+        assert!(message.contains("no description given"));
+    }
+
+    #[tokio::test]
+    async fn webhook_handles_empty_common_labels() {
+        let (ntfy_url, received) = mock_ntfy().await;
+        let base = start_app(test_state(&ntfy_url)).await;
+
+        let mut payload: serde_json::Value =
+            serde_json::from_str(include_str!("alertmanager/test/payload.json")).unwrap();
+        payload["commonLabels"] = serde_json::json!({});
+
+        let response = reqwest::Client::new()
+            .post(format!("{base}/v1/webhooks/alerts"))
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(payload.to_string())
+            .send()
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), 200);
+
+        let received = received.lock().unwrap();
+        assert_eq!(received.len(), 1);
+        assert_eq!(received[0].1["title"], "UNKNOWN: unknown");
+    }
+
+    #[tokio::test]
+    async fn webhook_rejects_wrong_shape_json() {
+        let (ntfy_url, _) = mock_ntfy().await;
+        let base = start_app(test_state(&ntfy_url)).await;
+
+        let response = reqwest::Client::new()
+            .post(format!("{base}/v1/webhooks/alerts"))
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(r#"{"foo": "bar"}"#)
+            .send()
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), 400);
+    }
 }

@@ -4,13 +4,13 @@ use std::path::Path;
 pub use error::Error;
 
 pub const DEFAULT_CONFIG_FILE: &str = "/etc/davyjones/config.toml";
-pub const DEFAULT_TITLE_TEMPLATE: &str = "{% if status == 'resolved' %}[Resolved] {% endif %}{{ commonLabels | get(key='severity', default='unknown') | upper}}: {{ commonLabels | get(key='alertname') }}";
+pub const DEFAULT_TITLE_TEMPLATE: &str = "{% if status == 'resolved' %}[Resolved] {% endif %}{{ commonLabels.severity | default(value='unknown') | upper }}: {{ commonLabels.alertname | default(value='unknown') }}";
 pub const DEFAULT_MESSAGE_TEMPLATE: &str = "
-{{ commonAnnotations | get(key='description', default='no description given') }}
+{{ commonAnnotations.description | default(value='no description given') }}
 ---
 {%- for alert in alerts %}
-## {{ alert.status }}: {{ alert.labels | get(key='alertname') }}
-{{ alert.annotations | get(key='description') }}
+## {{ alert.status }}: {{ alert.labels.alertname | default(value='unknown') }}
+{{ alert.annotations.description | default(value='no description given') }}
 ---
 {% endfor %}
 ";
