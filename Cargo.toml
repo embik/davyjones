@@ -13,8 +13,7 @@ time = { version = "0.3.37", features = ["serde", "parsing", "formatting"] }
 log = "0.4"
 url = { version = "2.5.4", features = ["serde"] }
 env_logger = "0.10"
-actix-web = { version = "4.9.0" }
-awc = { version = "3.5.1", features = ["rustls-0_23"] }
+axum = { version = "0.8.1" }
+tokio = { version = "1.43", features = ["macros", "rt-multi-thread", "signal", "net"] }
+reqwest = { version = "0.12.12", default-features = false, features = ["json", "rustls-tls-webpki-roots"] }
 tera = { version = "1.20.0" }
-rustls = { version = "0.23" }
-webpki-roots = { version = "0.26" }
