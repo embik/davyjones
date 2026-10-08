@@ -1,4 +1,7 @@
-use actix_web::error;
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
 
 use crate::ntfy;
 
@@ -17,6 +20,8 @@ impl std::fmt::Display for Error {
     }
 }
 
+impl std::error::Error for Error {}
+
 impl From<tera::Error> for Error {
     fn from(err: tera::Error) -> Error {
         Error::Tera(err)
@@ -29,5 +34,9 @@ impl From<ntfy::Error> for Error {
     }
 }
 
-// Use default implementation for `error_response()` method
-impl error::ResponseError for Error {}
+impl IntoResponse for Error {
+    fn into_response(self) -> Response {
+        log::error!("request failed: {self}");
+        (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()).into_response()
+    }
+}

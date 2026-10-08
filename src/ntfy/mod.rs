@@ -1,7 +1,4 @@
-use awc::{http::header, Client, Connector};
-use rustls::{ClientConfig, RootCertStore};
-
-use std::sync::Arc;
+use reqwest::{header, Client};
 
 mod error;
 mod message;
@@ -12,30 +9,32 @@ pub use message::Message;
 #[derive(Clone)]
 pub struct Ntfy {
     url: String,
-    use_basic_auth: bool,
-    username: String,
-    password: String,
-    client: awc::Client,
+    username: Option<String>,
+    password: Option<String>,
+    client: Client,
 }
 
 impl Ntfy {
-    pub fn new(url: &str, basic_auth: Option<(&String, &String)>) -> Ntfy {
-        let client_tls_config = Arc::new(rustls_config());
-
+    pub fn new(url: &str, basic_auth: Option<(&str, &str)>) -> Ntfy {
         let client = Client::builder()
-            .add_default_header((header::USER_AGENT, "davyjones-webhook-server/0.0"))
-            // a "connector" wraps the stream into an encrypted connection
-            .connector(Connector::new().rustls_0_23(Arc::clone(&client_tls_config)))
-            .finish();
+            .default_headers({
+                let mut headers = header::HeaderMap::new();
+                headers.insert(
+                    header::USER_AGENT,
+                    header::HeaderValue::from_static("davyjones-webhook-server/0.0"),
+                );
+                headers
+            })
+            .build()
+            .expect("failed to build HTTP client");
 
-        let (use_basic_auth, username, password) = match basic_auth {
-            Some((username, password)) => (true, username.clone(), password.clone()),
-            None => (false, "".to_string(), "".to_string()),
+        let (username, password) = match basic_auth {
+            Some((username, password)) => (Some(username.to_string()), Some(password.to_string())),
+            None => (None, None),
         };
 
         Ntfy {
             url: url.to_string(),
-            use_basic_auth,
             username,
             password,
             client,
@@ -45,11 +44,11 @@ impl Ntfy {
     pub async fn send(&self, msg: &Message) -> Result<(), Error> {
         let mut request = self.client.post(&self.url);
 
-        if self.use_basic_auth {
-            request = request.basic_auth(&self.username, &self.password);
+        if let (Some(username), Some(password)) = (&self.username, &self.password) {
+            request = request.basic_auth(username, Some(password));
         }
 
-        let response = request.send_json(msg).await?;
+        let response = request.json(msg).send().await?;
 
         if !response.status().is_success() {
             return Err(Error::ServerResponse(response.status()));
@@ -57,12 +56,4 @@ impl Ntfy {
 
         Ok(())
     }
-}
-
-fn rustls_config() -> ClientConfig {
-    let root_store = RootCertStore::from_iter(webpki_roots::TLS_SERVER_ROOTS.to_owned());
-
-    rustls::ClientConfig::builder()
-        .with_root_certificates(root_store)
-        .with_no_client_auth()
 }

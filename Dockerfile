@@ -1,4 +1,4 @@
-FROM docker.io/library/rust:1.84.0 as build-env
+FROM docker.io/library/rust:1.98 as build-env
 WORKDIR /app
 COPY . /app
 RUN cargo build --release

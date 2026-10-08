@@ -1,12 +1,8 @@
-use awc::{
-    error::{PayloadError, SendRequestError},
-    http::StatusCode,
-};
+use reqwest::StatusCode;
 
 #[derive(Debug)]
 pub enum Error {
-    Send(SendRequestError),
-    Payload(PayloadError),
+    Send(reqwest::Error),
     ServerResponse(StatusCode),
 }
 
@@ -16,7 +12,6 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Error::Send(err) => write!(f, "error while sending encountered: {err}"),
-            Error::Payload(err) => write!(f, "error while reading payload: {err}"),
             Error::ServerResponse(code) => {
                 write!(f, "ntfy server returned error code {code}")
             }
@@ -24,14 +19,8 @@ impl std::fmt::Display for Error {
     }
 }
 
-impl From<SendRequestError> for Error {
-    fn from(err: SendRequestError) -> Error {
+impl From<reqwest::Error> for Error {
+    fn from(err: reqwest::Error) -> Error {
         Error::Send(err)
-    }
-}
-
-impl From<PayloadError> for Error {
-    fn from(err: PayloadError) -> Error {
-        Error::Payload(err)
     }
 }
