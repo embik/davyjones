@@ -3,7 +3,7 @@ use crate::{
     ntfy::Message,
     ServerState,
 };
-use axum::{extract::State, http::StatusCode, routing::post, Json, Router};
+use axum::{extract::State, http::StatusCode, routing::post, Router};
 
 mod error;
 
@@ -18,9 +18,11 @@ pub fn router() -> Router<ServerState> {
 
 async fn webhook_alerts(
     State(state): State<ServerState>,
-    Json(payload): Json<Payload>,
+    body: String,
 ) -> Result<StatusCode, Error> {
-    log::debug!("received request");
+    log::debug!("received request body: {body}");
+
+    let payload: Payload = serde_json::from_str(&body)?;
 
     let context = tera::Context::from_serialize(&payload)?;
     let topic = match &state.config.topic.label {

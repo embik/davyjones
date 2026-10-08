@@ -372,4 +372,20 @@ mod tests {
         assert_eq!(received.len(), 1);
         assert_eq!(received[0].1["title"], "UNKNOWN: unknown");
     }
+
+    #[tokio::test]
+    async fn webhook_rejects_wrong_shape_json() {
+        let (ntfy_url, _) = mock_ntfy().await;
+        let base = start_app(test_state(&ntfy_url)).await;
+
+        let response = reqwest::Client::new()
+            .post(format!("{base}/v1/webhooks/alerts"))
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(r#"{"foo": "bar"}"#)
+            .send()
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), 400);
+    }
 }
